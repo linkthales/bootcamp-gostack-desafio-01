@@ -36,22 +36,30 @@ const projects = [
   }
 ];
 
-function idExists(request, response, next) {
+function idExistsOnBody(request, response, next) {
   const { id } = request.body;
 
   if (projects.find(project => project.id == id)) {
-    if (request.method === 'POST') {
-      return response
-        .status(400)
-        .json({ error: `Projeto com id: ${id} já existe.` });
-    }
-  } else {
-    if (request.method !== 'POST') {
-      return response
-        .status(400)
-        .json({ error: `Projeto com id: ${id} não existe.` });
-    }
+    return response
+      .status(400)
+      .json({ error: `Projeto com id: ${id} já existe.` });
   }
+
+  return next();
+}
+
+function idExistsOnParams(request, response, next) {
+  const { id } = request.params;
+
+  const projectIndex = projects.findIndex(project => project.id == id);
+
+  if (projectIndex === -1) {
+    return response
+      .status(400)
+      .json({ error: `Projeto com id: ${id} não existe.` });
+  }
+
+  request.projectIndex = projectIndex;
 
   return next();
 }
@@ -68,7 +76,7 @@ server.get('/projects', (request, response) => {
   response.json(projects);
 });
 
-server.post('/projects', idExists, (request, response) => {
+server.post('/projects', idExistsOnBody, (request, response) => {
   const { id, title } = request.body;
 
   projects.push({
@@ -78,6 +86,36 @@ server.post('/projects', idExists, (request, response) => {
   });
 
   response.json(projects);
+});
+
+server.post('/projects/:id/tasks', idExistsOnParams, (request, response) => {
+  const {
+    projectIndex,
+    body: { title }
+  } = request;
+
+  projects[projectIndex].tasks.push(title);
+
+  response.json(projects);
+});
+
+server.put('/projects/:id', idExistsOnParams, (request, response) => {
+  const {
+    projectIndex,
+    body: { title }
+  } = request;
+
+  projects[projectIndex].title = title;
+
+  response.json(projects);
+});
+
+server.delete('/projects/:id', idExistsOnParams, (request, response) => {
+  const { projectIndex } = request;
+
+  projects.splice(projectIndex, 1);
+
+  response.json({ message: 'Projeto removido com sucesso.' });
 });
 
 server.listen(port);

@@ -152,4 +152,20 @@ server.delete('/projects/:id', idExistsOnParams, (request, response) => {
   response.json({ message: 'Projeto removido com sucesso.' });
 });
 
+server.delete(
+  '/projects/:id/tasks/:taskId',
+  idExistsOnParams,
+  taskExistsOnParams,
+  (request, response) => {
+    const {
+      projectIndex,
+      params: { taskId }
+    } = request;
+
+    projects[projectIndex].tasks.splice(taskId, 1);
+
+    response.json({ message: 'Tarefa removida com sucesso.' });
+  }
+);
+
 server.listen(port);

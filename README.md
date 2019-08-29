@@ -52,6 +52,8 @@ Após concluir o desafio, adicionar esse código ao seu Github é uma boa forma 
 
 - `PUT /projects/:id/tasks/:taskId`: A rota deve alterar apenas o título da tarefa com o `taskId` do projeto com o `id` presente nos parâmetros da rota;
 
+- `DELETE /projects/:id/tasks/:taskId`: A rota deve deletar a tarefa com o `taskId` do projeto com o `id` presente nos parâmetros da rota;
+
 ### Middlewares
 
 - Crie um middleware que será utilizado em todas rotas que recebem o taskId do projeto nos parâmetros da URL que verifica se o projeto com aquele taskId existe. Se não existir retorne um erro, caso contrário permita a requisição continuar normalmente;

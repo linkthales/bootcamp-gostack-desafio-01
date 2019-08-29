@@ -64,6 +64,23 @@ function idExistsOnParams(request, response, next) {
   return next();
 }
 
+function taskExistsOnParams(request, response, next) {
+  const {
+    projectIndex,
+    params: { taskId }
+  } = request;
+
+  if (!projects[projectIndex].tasks[taskId]) {
+    return response
+      .status(400)
+      .json({ error: `Tarefa com id: ${taskId} não existe.` });
+  }
+
+  request.projectIndex = projectIndex;
+
+  return next();
+}
+
 server.get('/', (request, response) => {
   response.json({
     message: `${requests} request${
@@ -109,6 +126,23 @@ server.put('/projects/:id', idExistsOnParams, (request, response) => {
 
   response.json(projects);
 });
+
+server.put(
+  '/projects/:id/tasks/:taskId',
+  idExistsOnParams,
+  taskExistsOnParams,
+  (request, response) => {
+    const {
+      projectIndex,
+      body: { title },
+      params: { taskId }
+    } = request;
+
+    projects[projectIndex].tasks[taskId] = title;
+
+    response.json(projects);
+  }
+);
 
 server.delete('/projects/:id', idExistsOnParams, (request, response) => {
   const { projectIndex } = request;
